@@ -76,11 +76,11 @@ def main():
                     print("> " + Colors.green + "Download -> " + img_url + Colors.reset)
 
                     download_images(url=img_url, file_path="./images/{}.jpg".format(media_id))
-            except Exception as e:
+            except:
                 print("> " + Colors.red + "このメディアはビデオのためダウンロード出来ませんでした" + Colors.reset)
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(e)
+        
