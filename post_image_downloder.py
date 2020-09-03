@@ -23,33 +23,6 @@ class Colors:
     green = Fore.GREEN
     reset = Fore.RESET
 
-
-
-def show_public_tweets():
-    # タイムラインのツイートを取得
-    public_tweets = api.home_timeline()
-    for tweet in public_tweets:
-        print(tweet.text)
-
-    
-def show_user_profile():
-    # ユーザーのプロフィールを取得
-    user = api.get_user(username)
-    print(user.screen_name)
-    print(user.followers_count)
-
-    
-def show_media_url():
-    # 入力したユーザーのタイムラインからツイートを読み込む
-    user_id = username
-    statuses = api.user_timeline(id=user_id, count=4)
-
-    for status in statuses:
-        for entity in status.extended_entities["media"]:
-            img_url = entity["media_url"]
-            print(img_url)
-        break
-
     
 
 
