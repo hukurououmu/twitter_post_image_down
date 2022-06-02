@@ -1,56 +1,48 @@
 import os
-import tweepy
+from time import sleep
 import requests
-from colorama import Fore
+import tweepy
+from config import consumer_key, consumer_key_secret, access_token, access_token_secret
 
-# config.pyからkeyとtokenをimport
-from config import consumer_key, consumer_secret, access_token, access_token_secret
-# -----------------------------
-
-# tweepyを使う準備
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+# Twitter APIの設定をする
+auth = tweepy.OAuthHandler(consumer_key, consumer_key_secret)
 auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth, wait_on_rate_limit=True)
 
-api = tweepy.API(auth)
-#------------------------------
+# アカウントネームとツイート数を入力する
+search_account = input("> Enter account name: ")  # Example: nasa
+count_num = int(input("> Set search count: "))  # Example: 100　で100ツイート分
 
-userid = input("> ユーザーIDを入力してください: ")
-username = userid
-
-
-class Colors:
-    red = Fore.RED
-    green = Fore.GREEN
-    reset = Fore.RESET
-
-    
+# 画像の保存場所を作成する(アカウントネームのフォルダが作られそこから連番で保存)
+os.makedirs("images/" + search_account, exist_ok=True)
 
 
-def download_images(url, file_path):
-    # urlから画像ファイルをダウンロード
-    req = requests.get(url, stream=True)
-
-    if req.status_code == 200:
-        with open(file_path, "wb") as f:
-            f.write(req.content)
+def download_files(url, path):
+    # 画像のurlを保存する関数
+    try:
+        resp = requests.get(url, stream=True)
+        with open(path, "wb") as f:
+            f.write(resp.content)
+    except Exception as e:
+        raise e
 
 
 def main():
-    # 入力されたユーザーのツイートを読み込んで投稿された画像をダウンロード
-    if not os.path.exists("./images/"):
-        os.mkdir("./images/")
-    user_id = username
-    for page in tweepy.Cursor(api.user_timeline, id=user_id).pages(1):  # pagesに指定された数のページ分ダウンロードが行われる
-        for status in page:
-            try:
-                for media in status.extended_entities["media"]:
-                    media_id = media["id"]
-                    img_url = media["media_url"]
-                    print("> " + Colors.green + "Download -> " + img_url + Colors.reset)
+    # メイン関数
+    i = 0
+    for result in tweepy.Cursor(
+            api.user_timeline, screen_name=search_account, tweet_mode="extended").items(count_num):
+        try:
+            for media in result.entities.get("media", []):
+                url = media["media_url"]
+                print("OK " + url)
+                path = f"./images/{search_account}/{i}.jpg"  # 連番で保存
+                download_files(url, path)
+                i += 1
+                sleep(1)  # タイムアウトの防止
+        except Exception as e:
+            raise e
 
-                    download_images(url=img_url, file_path="./images/{}.jpg".format(media_id))
-            except:
-                print("> " + Colors.red + "このメディアはビデオのためダウンロード出来ませんでした" + Colors.reset)
 
 if __name__ == "__main__":
     try:
