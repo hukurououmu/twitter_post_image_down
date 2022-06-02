@@ -29,6 +29,7 @@ def download_files(url, path):
 
 def main():
     # メイン関数
+    print("> Downloading")
     i = 0
     for result in tweepy.Cursor(
             api.user_timeline, screen_name=search_account, tweet_mode="extended").items(count_num):
@@ -42,6 +43,7 @@ def main():
                 sleep(1)  # タイムアウトの防止
         except Exception as e:
             raise e
+    print("> Download ended")
 
 
 if __name__ == "__main__":
